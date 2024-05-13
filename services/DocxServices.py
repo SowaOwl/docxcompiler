@@ -11,10 +11,13 @@ class DocxServices:
 
     def extractFromDocx(self, file):
         doc = Document(file)
-        data = self.__extractData(doc)
+        data = self._extractData(doc)
         return data
+    
+    def fillDataToFile(self, file):
+        return "OK"
 
-    def __extractData(self, doc):
+    def _extractData(self, doc):
         data = {
             "stroke": [],
             "number": [],
@@ -24,14 +27,14 @@ class DocxServices:
         }
         
         for paragraph in doc.paragraphs:
-            self.__extractFromText(paragraph.text, data)
+            self._extractFromText(paragraph.text, data)
     
         for table in doc.tables:
-            self.__extractFromTable(table, data)
+            self._extractFromTable(table, data)
         
         return data
 
-    def __extractFromText(self, text, data):
+    def _extractFromText(self, text, data):
         for type_name, instr in self.__INSTRUCTIONS.items():
             matches = re.findall(instr['pattern'], text)
             for match in matches:
@@ -40,7 +43,7 @@ class DocxServices:
                 else:                             # Если несколько имен атрибутов
                     data[type_name].append({name: value for name, value in zip(instr['attrNames'], match)})
     
-    def __extractFromTable(self, table, data):
+    def _extractFromTable(self, table, data):
         for row in table.row:
             for cell in row.cell:
                 self.__extractFromText
