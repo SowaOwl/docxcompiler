@@ -1,2 +1,11 @@
+click==8.1.7
 Flask==2.1.0
+importlib_metadata==7.1.0
+itsdangerous==2.2.0
+Jinja2==3.1.4
+lxml==5.2.2
+MarkupSafe==2.1.5
+python-docx==1.1.2
+typing_extensions==4.11.0
 Werkzeug==2.0.2
+zipp==3.18.1
