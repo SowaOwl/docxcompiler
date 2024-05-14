@@ -13,7 +13,7 @@ def extract():
     
 @api.route('/fill-file', methods=['POST'])
 def fill_file():
-    return docx_handler.fill_file(request)
+    return docx_handler.fillFile(request)
 
 @app.route('/')
 def index():
