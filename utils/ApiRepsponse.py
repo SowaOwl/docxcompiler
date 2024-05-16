@@ -1,13 +1,13 @@
 import json
     
-def sendError(msg, data=''):
+def sendError(msg: str, data=''):
     return json.dumps({
         'status': False,
         'message': msg,
         'data': data
     })
 
-def sendSuccess(msg, data=''):
+def sendSuccess(msg: str, data=''):
     return json.dumps({
         'status': True,
         'message': msg,

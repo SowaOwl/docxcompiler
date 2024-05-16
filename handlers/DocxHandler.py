@@ -1,6 +1,5 @@
 from services.DocxServices import DocxServices
 from utils.ApiRepsponse import sendError, sendSuccess
-from flask import jsonify
 
 docx_services = DocxServices()
 
@@ -14,7 +13,7 @@ class DocxHandler:
         if file.filename.endswith('.docx'):
             try:
                 response = docx_services.extractFromDocx(file)
-                return sendSuccess('Extract data fihish sucessful',response)
+                return sendSuccess('Extract data fihish sucessful', response)
             except Exception as e:
                 return sendError(str(e))
         else:
