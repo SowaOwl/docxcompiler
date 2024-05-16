@@ -3,9 +3,6 @@ import sys
 
 class WelcomeHandler:
 
-    def __init__(self) -> None:
-        pass
-
     def welcome(self):
         data = {
             'pyVersion': sys.version,

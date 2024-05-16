@@ -1,0 +1,16 @@
+border_table_style = (
+    '<w:style xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" '
+    'w:type="table" w:styleId="TableGrid">'
+    '<w:name w:val="Table Grid"/>'
+    '<w:tblPr>'
+    '<w:tblBorders>'
+    '<w:top w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+    '<w:left w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+    '<w:bottom w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+    '<w:right w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+    '<w:insideH w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+    '<w:insideV w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+    '</w:tblBorders>'
+    '</w:tblPr>'
+    '</w:style>'
+)

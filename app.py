@@ -1,4 +1,4 @@
-from flask import Flask, render_template , __version__, Blueprint, request, jsonify
+from flask import Flask, Blueprint, request
 from handlers.DocxHandler import DocxHandler
 from handlers.WelcomeHandler import WelcomeHandler
 
@@ -15,7 +15,7 @@ def extract():
 def fill_file():
     return docx_handler.fillFile(request)
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 def index():
     return welcome_handler.welcome()
 
