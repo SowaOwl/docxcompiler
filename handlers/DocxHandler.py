@@ -26,7 +26,7 @@ class DocxHandler:
         try:
             response = docx_services.fillDataToFile(data)
             if response:
-                return sendSuccess('Document fill finish success')
+                return sendSuccess('Document fill finish success', response)
             else:
                 return sendError('Document fill give an error')
         except Exception as e:

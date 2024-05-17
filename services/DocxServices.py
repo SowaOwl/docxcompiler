@@ -1,4 +1,6 @@
 import re
+import base64
+import os
 from docx import Document
 from docx.table import Table
 from docx.text.paragraph import Paragraph
@@ -12,6 +14,9 @@ from utils.types import TYPES
 from utils.xmlStyles import border_table_style
 
 class DocxServices:
+
+    __TEMP_PATH = 'storage/'
+
     @staticmethod
     def extractFromDocx(file: FileStorage) -> dict:
         doc = Document(file)
@@ -19,11 +24,13 @@ class DocxServices:
         return data
     
     @staticmethod
-    def fillDataToFile(data: Dict) -> True:
+    def fillDataToFile(data: Dict) -> str:
+        file_to_save_path = DocxServices.__TEMP_PATH + 'temp.docx'
         doc = Document("test.docx")
+
         DocxServices._fillData(doc, data)
-        doc.save('response.docx')
-        return True
+        doc.save(file_to_save_path)
+        return DocxServices._getBase64AndDeleteFile(file_to_save_path)
     
     @staticmethod
     def _fillData(doc: Document, data: Dict) -> None:
@@ -41,6 +48,14 @@ class DocxServices:
                     cell.text = DocxServices._replaceText(cell.text, data)
 
         DocxServices._fillTables(doc, data)
+
+    @staticmethod
+    def _getBase64AndDeleteFile(path: str) -> str:
+        base64_string = ''
+        with open(path, "rb") as image_file:
+            base64_string = base64.b64encode(image_file.read())
+        os.remove(path)
+        return base64_string.decode('utf-8')
 
     @staticmethod
     def _fillTables(doc: Document, data: Dict) -> None:
