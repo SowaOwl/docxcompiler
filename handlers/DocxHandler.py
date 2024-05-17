@@ -1,11 +1,12 @@
+from flask import Request
 from services.DocxServices import DocxServices
 from utils.ApiRepsponse import sendError, sendSuccess
 
 docx_services = DocxServices()
 
 class DocxHandler:
-
-    def extract(self, request):
+    @staticmethod
+    def extract(request: Request) -> str:
         if 'file' not in request.files:
             return sendError('No file')
         
@@ -19,7 +20,8 @@ class DocxHandler:
         else:
             return sendError('Invalid file format. Please upload a .docx file.')
         
-    def fillFile(self, request):
+    @staticmethod
+    def fillFile(request: Request) -> str:
         data = request.json
         try:
             response = docx_services.fillDataToFile(data)

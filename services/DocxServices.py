@@ -1,56 +1,61 @@
+import re
 from docx import Document
+from docx.table import Table
+from docx.text.paragraph import Paragraph
 from docx.shared import Mm
 from docx.oxml import parse_xml
 from docx.enum.table import WD_TABLE_ALIGNMENT
-import re
+from werkzeug.datastructures import FileStorage
+from typing import Dict
 from utils.insturctions import INSTRUCTIONS
 from utils.types import TYPES
 from utils.xmlStyles import border_table_style
 
 class DocxServices:
-
-    __INSTRUCTIONS = INSTRUCTIONS
-    __TYPES = TYPES
-    
-    def extractFromDocx(self, file) -> dict:
+    @staticmethod
+    def extractFromDocx(file: FileStorage) -> dict:
         doc = Document(file)
-        data = self._extractData(doc)
+        data = DocxServices._extractData(doc)
         return data
     
-    def fillDataToFile(self, data) -> True:
+    @staticmethod
+    def fillDataToFile(data: Dict) -> True:
         doc = Document("test.docx")
-        self._fillData(doc, data)
+        DocxServices._fillData(doc, data)
         doc.save('response.docx')
         return True
     
-    def _fillData(self, doc, data) -> None:
-        self._setTableBorder(doc)
+    @staticmethod
+    def _fillData(doc: Document, data: Dict) -> None:
+        DocxServices._setTableBorder(doc)
         for section in doc.sections:
             if(not section.page_width):
                 section.page_width = Mm(300)
 
         for paragraph in doc.paragraphs:
-            paragraph.text = self._replaceText(paragraph.text, data)
+            paragraph.text = DocxServices._replaceText(paragraph.text, data)
         
         for table in doc.tables:
             for row in table.rows:
                 for cell in row.cells:
-                    cell.text = self._replaceText(cell.text, data)
+                    cell.text = DocxServices._replaceText(cell.text, data)
 
-        self._fillTables(doc, data)
+        DocxServices._fillTables(doc, data)
 
-    def _fillTables(self, doc, data) -> None:
+    @staticmethod
+    def _fillTables(doc: Document, data: Dict) -> None:
         if 'tables' in data:
             for item in data['tables']:
-                pattern = r'\{\{' + self.__TYPES['tables'] + r':' + item['name'] + r':[^}]+}}'
+                pattern = r'\{\{' + TYPES['tables'] + r':' + item['name'] + r':[^}]+}}'
                 for paragraph in doc.paragraphs:
                     if re.search(pattern, paragraph.text):
-                        self._createTable(paragraph, item, doc)
+                        DocxServices._createTable(paragraph, item, doc)
                         paragraph.clear()
     
-    def _createTable(self, paragraph, item, doc) -> None:
+    @staticmethod
+    def _createTable(paragraph: Paragraph, item: Dict, doc) -> None:
         table = doc.add_table(rows=len(item['data']), cols=len(item['data'][0]))
-        self._moveTableAfter(table, paragraph)
+        DocxServices._moveTableAfter(table, paragraph)
         table.alignment = WD_TABLE_ALIGNMENT.CENTER
         table.autofit = True
         table.style = 'TableGrid'
@@ -59,20 +64,23 @@ class DocxServices:
             for j, cell_txt in enumerate(row):
                 table.cell(i, j).text = str(cell_txt)
 
-    def _moveTableAfter(self ,table, paragraph) -> None:
+    @staticmethod
+    def _moveTableAfter(table: Table, paragraph: Paragraph) -> None:
         tbl, p = table._tbl, paragraph._p
         p.addnext(tbl)
 
-    def _setTableBorder(self, document) -> None:
+    @staticmethod
+    def _setTableBorder(document: Document) -> None:
         table_style = border_table_style
         document.styles.add_style('TableGrid', 3)
         style_element = parse_xml(table_style)
         document.styles._element.append(style_element)
     
-    def _replaceText(self, text, data) -> str:
+    @staticmethod
+    def _replaceText(text: str, data: Dict) -> str:
         for type_name, items in data.items():
             for item in items:
-                placeholder = r'\{\{' + self.__TYPES[type_name] + r':' + item['name'] + r':[^}]+}}'
+                placeholder = r'\{\{' + TYPES[type_name] + r':' + item['name'] + r':[^}]+}}'
                 match type_name:
                     case 'logical':
                         logicalTemp = 'Да' if item['data'] else 'Нет'
@@ -87,7 +95,8 @@ class DocxServices:
 
         return text
 
-    def _extractData(self, doc) -> dict:
+    @staticmethod
+    def _extractData(doc: Document) -> dict:
         data = {
             'stroke': [],
             'number': [],
@@ -97,15 +106,16 @@ class DocxServices:
         }
         
         for paragraph in doc.paragraphs:
-            self._extractFromText(paragraph.text, data)
+            DocxServices._extractFromText(paragraph.text, data)
     
         for table in doc.tables:
-            self._extractFromTable(table, data)
+            DocxServices._extractFromTable(table, data)
         
         return data
-
-    def _extractFromText(self, text, data) -> None:
-        for type_name, instr in self.__INSTRUCTIONS.items():
+    
+    @staticmethod
+    def _extractFromText(text: str, data: Dict) -> None:
+        for type_name, instr in INSTRUCTIONS.items():
             matches = re.findall(instr['pattern'], text)
             for match in matches:
                 if len(instr['attrNames']) == 1:  # Если только одно имя атрибута
@@ -113,7 +123,8 @@ class DocxServices:
                 else:                             # Если несколько имен атрибутов
                     data[type_name].append({name: value for name, value in zip(instr['attrNames'], match)})
     
-    def _extractFromTable(self, table, data) -> None:
+    @staticmethod
+    def _extractFromTable(table: Table, data: Dict) -> None:
         for row in table.rows:
             for cell in row.cells:
-                self._extractFromText(cell.text, data)
+                DocxServices._extractFromText(cell.text, data)

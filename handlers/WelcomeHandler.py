@@ -2,8 +2,8 @@ from flask import render_template, __version__
 import sys
 
 class WelcomeHandler:
-
-    def welcome(self):
+    @staticmethod
+    def welcome() -> str:
         data = {
             'pyVersion': sys.version,
             'flaskVersion': __version__
