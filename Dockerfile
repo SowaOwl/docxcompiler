@@ -5,14 +5,11 @@ WORKDIR /var/www/docx
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    pandoc \
+RUN apt-get update && apt-get install -y \
     libreoffice \
-    texlive-xetex \
-    texlive-full \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    fonts-dejavu \
+    fontconfig \
+    && apt-get clean
 
 COPY requirements.txt .
 

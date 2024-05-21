@@ -1,7 +1,7 @@
 import re
 import base64
 import os
-import pypandoc
+import subprocess
 from docx import Document
 from docx.table import Table
 from docx.text.paragraph import Paragraph
@@ -27,13 +27,11 @@ class DocxServices:
     
     @staticmethod
     def fillDataToFile(data: Dict) -> str:
-        file_to_save_path = DocxServices.__TEMP_PATH + 'temp.docx'
-        # pdf_path = DocxServices.__TEMP_PATH + 'temp_pdf.pdf'
+        file_to_save_path = DocxServices.__TEMP_PATH + 'temp.docx'           
         doc = Document("test.docx")
 
         DocxServices._fillData(doc, data)
         doc.save(file_to_save_path)
-        # pypandoc.convert_file(file_to_save_path, 'pdf', outputfile=pdf_path, extra_args=['--pdf-engine=xelatex'])
         return DocxServices._getBase64AndDeleteFile(file_to_save_path)
     
     @staticmethod
@@ -56,11 +54,16 @@ class DocxServices:
     @staticmethod
     def _getBase64AndDeleteFile(path: str) -> str:
         base64_string = ''
-        # pdf_path = DocxServices.__TEMP_PATH + 'temp_pdf.docx'
-        with open(path, "rb") as file:
+        pdf_path = DocxServices.__TEMP_PATH + 'temp.pdf'
+        command = ["libreoffice", "--headless", "--convert-to", "pdf", path, "--outdir", DocxServices.__TEMP_PATH]
+        subprocess.run(command, check=True)
+        
+        with open(pdf_path, "rb") as file:
             base64_string = base64.b64encode(file.read())
+            
         os.remove(path)
-        # os.remove(pdf_path)
+        os.remove(pdf_path)
+        
         return base64_string.decode('utf-8')
 
     @staticmethod
