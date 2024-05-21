@@ -1,6 +1,7 @@
 import re
 import base64
 import os
+import pypandoc
 from docx import Document
 from docx.table import Table
 from docx.text.paragraph import Paragraph
@@ -16,6 +17,7 @@ from utils.xmlStyles import border_table_style
 class DocxServices:
 
     __TEMP_PATH = 'storage/'
+    __A4_WIDTH = 215
 
     @staticmethod
     def extractFromDocx(file: FileStorage) -> dict:
@@ -26,10 +28,12 @@ class DocxServices:
     @staticmethod
     def fillDataToFile(data: Dict) -> str:
         file_to_save_path = DocxServices.__TEMP_PATH + 'temp.docx'
+        # pdf_path = DocxServices.__TEMP_PATH + 'temp_pdf.pdf'
         doc = Document("test.docx")
 
         DocxServices._fillData(doc, data)
         doc.save(file_to_save_path)
+        # pypandoc.convert_file(file_to_save_path, 'pdf', outputfile=pdf_path, extra_args=['--pdf-engine=xelatex'])
         return DocxServices._getBase64AndDeleteFile(file_to_save_path)
     
     @staticmethod
@@ -37,7 +41,7 @@ class DocxServices:
         DocxServices._setTableBorder(doc)
         for section in doc.sections:
             if(not section.page_width):
-                section.page_width = Mm(300)
+                section.page_width = Mm(DocxServices.__A4_WIDTH)
 
         for paragraph in doc.paragraphs:
             paragraph.text = DocxServices._replaceText(paragraph.text, data)
@@ -52,9 +56,11 @@ class DocxServices:
     @staticmethod
     def _getBase64AndDeleteFile(path: str) -> str:
         base64_string = ''
-        with open(path, "rb") as image_file:
-            base64_string = base64.b64encode(image_file.read())
+        # pdf_path = DocxServices.__TEMP_PATH + 'temp_pdf.docx'
+        with open(path, "rb") as file:
+            base64_string = base64.b64encode(file.read())
         os.remove(path)
+        # os.remove(pdf_path)
         return base64_string.decode('utf-8')
 
     @staticmethod
@@ -72,7 +78,7 @@ class DocxServices:
         table = doc.add_table(rows=len(item['data']), cols=len(item['data'][0]))
         DocxServices._moveTableAfter(table, paragraph)
         table.alignment = WD_TABLE_ALIGNMENT.CENTER
-        table.autofit = True
+        table.autofit = True 
         table.style = 'TableGrid'
 
         for i, row in enumerate(item['data']):
@@ -133,10 +139,13 @@ class DocxServices:
         for type_name, instr in INSTRUCTIONS.items():
             matches = re.findall(instr['pattern'], text)
             for match in matches:
-                if len(instr['attrNames']) == 1:  # Если только одно имя атрибута
-                    data[type_name].append({instr['attrNames'][0]: match})
-                else:                             # Если несколько имен атрибутов
-                    data[type_name].append({name: value for name, value in zip(instr['attrNames'], match)})
+                if(any(item["name"] == match[0] for item in data[type_name])):
+                    continue
+                else:
+                    if len(instr['attrNames']) == 1:  # Если только одно имя атрибута
+                        data[type_name].append({instr['attrNames'][0]: match})
+                    else:                             # Если несколько имен атрибутов
+                        data[type_name].append({name: value for name, value in zip(instr['attrNames'], match)})
     
     @staticmethod
     def _extractFromTable(table: Table, data: Dict) -> None:
