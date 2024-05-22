@@ -33,23 +33,30 @@ class DocxServices:
         DocxServices._fillData(doc, data)
         doc.save(file_to_save_path)
         return DocxServices._getBase64AndDeleteFile(file_to_save_path)
-    
+
     @staticmethod
     def _fillData(doc: Document, data: Dict) -> None:
         DocxServices._setTableBorder(doc)
-        for section in doc.sections:
-            if(not section.page_width):
-                section.page_width = Mm(DocxServices.__A4_WIDTH)
-
         for paragraph in doc.paragraphs:
-            paragraph.text = DocxServices._replaceText(paragraph.text, data)
+            DocxServices._replaceTextInParagraph(paragraph, data)
         
         for table in doc.tables:
             for row in table.rows:
                 for cell in row.cells:
-                    cell.text = DocxServices._replaceText(cell.text, data)
+                    for paragraph in cell.paragraphs:
+                        DocxServices._replaceTextInParagraph(paragraph, data)
 
         DocxServices._fillTables(doc, data)
+
+    @staticmethod
+    def _replaceTextInParagraph(paragraph, data):
+        for run in paragraph.runs:
+            original_text = run.text
+            replaced_text = DocxServices._replaceText(run.text, data)
+            if replaced_text != original_text:
+                with open("log.txt", "a") as f:
+                    f.write(original_text + " | " + replaced_text + '\n')
+                run.text = replaced_text
 
     @staticmethod
     def _getBase64AndDeleteFile(path: str) -> str:
