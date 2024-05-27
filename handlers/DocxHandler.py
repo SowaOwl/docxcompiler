@@ -1,6 +1,6 @@
 from flask import Request
-from services.DocxServices import DocxServices
 from utils.ApiRepsponse import sendError, sendSuccess
+from services.docx_services.docx_service import DocxServices
 
 docx_services = DocxServices()
 
