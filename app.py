@@ -7,6 +7,11 @@ welcome_handler = WelcomeHandler()
 app = Flask(__name__, template_folder='public/views')
 api = Blueprint('api', __name__, url_prefix='/api')
 
+@app.route('/', methods=['GET'])
+def index() -> str:
+    return welcome_handler.welcome()
+
+# Api routes
 @api.route('/extract', methods=['POST'])
 def extract() -> str:
     return docx_handler.extract(request)
@@ -14,10 +19,6 @@ def extract() -> str:
 @api.route('/fill-file', methods=['POST'])
 def fill_file() -> str:
     return docx_handler.fillFile(request)
-
-@app.route('/', methods=['GET'])
-def index() -> str:
-    return welcome_handler.welcome()
 
 app.register_blueprint(api)
 

@@ -2,17 +2,12 @@ from re import findall
 from typing import Dict
 from docx import Document
 from docx.table import Table
+from utils.types import TYPES
 from utils.paths import storagePath
 from utils.insturctions import INSTRUCTIONS
 
 def extractData(doc: Document) -> dict:
-    data = {
-        'stroke': [],
-        'number': [],
-        'logical': [],
-        'switcher': [],
-        'tables': []
-    }
+    data = {key: [] for key in TYPES.keys()}
     
     for paragraph in doc.paragraphs:
         _extractFromText(paragraph.text, data)
