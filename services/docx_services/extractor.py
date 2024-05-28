@@ -29,18 +29,20 @@ def _extractFromText(text: str, data: Dict) -> None:
             if any(item['name'] == name for item in type_array):
                 continue
             else:
-                if type_name == 'alt_stroke':
-                    def_values = DEFAULT_VALUES
-                    def_values['placeholder'] = match
-                    def_values['name'] = translitKir2Lat(match)
-                    data[instr['parrentName']].append(
-                            {attr: def_values[attr] for attr in INSTRUCTIONS['stroke']['attrNames'] if attr in def_values}
-                        )
-                elif len(instr['attrNames']) == 1:
-                    data[type_name].append({instr['attrNames'][0]: match})
-                else:
-                    data[type_name].append({name: value for name, value in zip(instr['attrNames'], match)})
-        
+                match type_name:
+                    case 'alt_stroke':
+                        def_values = DEFAULT_VALUES.copy()
+                        def_values['placeholder'] = match
+                        def_values['name'] = translitKir2Lat(match)
+                        data[instr['parrentName']].append(
+                                {attr: def_values[attr] for attr in INSTRUCTIONS['stroke']['attrNames'] if attr in def_values}
+                            )
+                    case _:
+                        if len(instr['attrNames']) == 1:
+                            data[type_name].append({instr['attrNames'][0]: match})
+                        else:
+                            data[type_name].append({name: value for name, value in zip(instr['attrNames'], match)})
+                
 def _extractFromTable(table: Table, data: Dict) -> None:
     for row in table.rows:
         for cell in row.cells:

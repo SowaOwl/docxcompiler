@@ -112,7 +112,7 @@ def _replaceText(text: str, data: Dict) -> str:
                 case 'stroke':
                     text = sub(placeholder, str(item['data']), text)
                     if(text == old_text):
-                        placeholder = r'\{\{' + item['placeholder'] + '\}\}'
+                        placeholder = r'\{\{' + item['placeholder'] + r'\}\}'
                         text = sub(placeholder, str(item['data']), text)
                 case 'logical':
                     logicalTemp = 'Да' if item['data'] else 'Нет'
