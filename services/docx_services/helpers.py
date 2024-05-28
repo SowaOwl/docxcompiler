@@ -14,7 +14,7 @@ def getBase64AndDeleteFile(path: str) -> str:
         base64_string = b64encode(file.read())
         
     remove(path)
-    # remove(pdf_path)
+    remove(pdf_path)
     
     return base64_string.decode('utf-8')
 
