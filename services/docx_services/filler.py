@@ -3,8 +3,8 @@ from re import sub, search
 from docx.table import Table
 from typing import Dict, List
 from docx.text.run import Run
-from utils.types import TYPES
 from docx.oxml import parse_xml
+from utils.insturctions import TYPES
 from docx.text.paragraph import Paragraph
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from utils.xmlStyles import border_table_style
@@ -104,11 +104,16 @@ def _fillTables(doc: Document, data: Dict) -> None:
                     paragraph.clear()
 
 def _replaceText(text: str, data: Dict) -> str:
-    test = text
+    old_text = text
     for type_name, items in data.items():
         for item in items:
             placeholder = r'\{\{' + TYPES[type_name] + r':' + item['name'] + r':[^}]+}}'
             match type_name:
+                case 'stroke':
+                    text = sub(placeholder, str(item['data']), text)
+                    if(text == old_text):
+                        placeholder = r'\{\{' + item['placeholder'] + '\}\}'
+                        text = sub(placeholder, str(item['data']), text)
                 case 'logical':
                     logicalTemp = 'Да' if item['data'] else 'Нет'
                     text = sub(placeholder, str(item['placeholder']) + ' - ' + logicalTemp, text)

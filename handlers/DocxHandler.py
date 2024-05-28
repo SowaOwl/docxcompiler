@@ -1,6 +1,7 @@
 from flask import Request
 from utils.ApiRepsponse import sendError, sendSuccess
 from services.docx_services.docx_service import DocxServices
+import traceback
 
 docx_services = DocxServices()
 
@@ -16,6 +17,8 @@ class DocxHandler:
                 response = docx_services.extractFromDocx(file)
                 return sendSuccess('Extract data fihish sucessful', response)
             except Exception as e:
+                with open("log.txt", "a") as f:
+                    f.write(traceback.format_exc() + '\n')
                 return sendError(str(e))
         else:
             return sendError('Invalid file format. Please upload a .docx file.')
