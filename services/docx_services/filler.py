@@ -22,12 +22,13 @@ def fillData(doc: Document, data: Dict) -> None:
     _fillTables(doc, data)
 
 def _replaceTextInParagraph(paragraph: Paragraph, data: Dict) -> None:
+    # Если в параграфе один run идет замена всего параграфа
     if len(paragraph.runs) == 1 : 
-        for run in paragraph.runs:
-            original_text = run.text
-            replaced_text = _replaceText(run.text, data)
-            if replaced_text != original_text:
-                run.text = replaced_text
+        original_text = paragraph.text
+        replaced_text = _replaceText(paragraph.text, data)
+        if replaced_text != original_text:
+            paragraph.text = replaced_text
+        
     else:
         repeat_count = 0
         while _checkBraces(paragraph.runs, paragraph):
@@ -43,17 +44,22 @@ def _replaceTextInParagraph(paragraph: Paragraph, data: Dict) -> None:
 
             for i, run in enumerate(paragraph.runs):
                 original_text = run.text
-                if "{{" in original_text and "}}" in original_text and inside_brackets == False:
+                # Если run содержит в себе и открываюшие и закрываюшие скобки происходит замена текста всего run
+                if "{{" in original_text and "}}" in original_text and not inside_brackets:
                     replaced_text = _replaceText(run.text, data)
                     run.text = replaced_text
 
-                elif "{{" in original_text and inside_brackets == False:
+                # Если в run только открываюшие то начинается отслеживание текста с начала {{ и добавляются runы для очстки
+                elif "{{" in original_text and not inside_brackets:
                     start_index = original_text.find("{{")
                     text_to_replace = original_text[start_index:]
                     first_run_index = i
                     inside_brackets = True
                     runs_to_clear.append(run)
 
+                # Если в run только закрываюшие то добавляется к тексту 
+                # для замены окончание текста и происходит замена текста этот текст добовляется в run где была открываюшая скобка
+                # а остальные зачишаются
                 elif "}}" in original_text and inside_brackets:
                     end_index = original_text.find("}}") + 2
                     text_to_replace += original_text[:end_index]
