@@ -2,24 +2,24 @@ from re import findall
 from typing import Dict
 from docx import Document
 from docx.table import Table
-from utils.paths import storagePath
-from .helpers import translitKir2Lat
+from utils.paths import storage_path
+from .helpers import translitkir_2_lat
 from utils.insturctions import INSTRUCTIONS, DEFAULT_VALUES, TYPES
 
-def extractData(doc: Document) -> dict:
+def extract_data(doc: Document) -> dict:
     data = {key: [] for key in TYPES.keys()}
     
     for paragraph in doc.paragraphs:
-        _extractFromText(paragraph.text, data)
+        _extract_from_text(paragraph.text, data)
 
     for table in doc.tables:
-        _extractFromTable(table, data)
+        _extract_from_table(table, data)
     
-    doc.save(storagePath('test.docx'))
+    doc.save(storage_path('test.docx'))
 
     return data
 
-def _extractFromText(text: str, data: Dict) -> None:
+def _extract_from_text(text: str, data: Dict) -> None:
     for type_name, instr in INSTRUCTIONS.items():
         matches = findall(instr['pattern'], text)
         for match in matches:
@@ -33,7 +33,7 @@ def _extractFromText(text: str, data: Dict) -> None:
                     case 'alt_stroke':
                         def_values = DEFAULT_VALUES.copy()
                         def_values['placeholder'] = match
-                        def_values['name'] = translitKir2Lat(match)
+                        def_values['name'] = translitkir_2_lat(match)
                         data[instr['parrentName']].append(
                                 {attr: def_values[attr] for attr in INSTRUCTIONS['stroke']['attrNames'] if attr in def_values}
                             )
@@ -43,7 +43,7 @@ def _extractFromText(text: str, data: Dict) -> None:
                         else:
                             data[type_name].append({name: value for name, value in zip(instr['attrNames'], match)})
                 
-def _extractFromTable(table: Table, data: Dict) -> None:
+def _extract_from_table(table: Table, data: Dict) -> None:
     for row in table.rows:
         for cell in row.cells:
-            _extractFromText(cell.text, data)
+            _extract_from_text(cell.text, data)

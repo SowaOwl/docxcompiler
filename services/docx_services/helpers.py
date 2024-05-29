@@ -2,12 +2,12 @@ from os import remove
 from subprocess import run
 from base64 import b64encode
 from transliterate import translit
-from utils.paths import storagePath
+from utils.paths import storage_path
 
-def getBase64AndDeleteFile(path: str) -> str:
+def get_base_64_and_delete_file(path: str) -> str:
     base64_string = ''
-    pdf_path = storagePath('temp.pdf')
-    command = ['libreoffice', '--headless', '--convert-to', 'pdf', path, '--outdir', storagePath('')]
+    pdf_path = storage_path('temp.pdf')
+    command = ['libreoffice', '--headless', '--convert-to', 'pdf', path, '--outdir', storage_path('')]
     run(command, check=True)
     
     with open(pdf_path, 'rb') as file:
@@ -18,7 +18,7 @@ def getBase64AndDeleteFile(path: str) -> str:
     
     return base64_string.decode('utf-8')
 
-def translitKir2Lat(text: str) -> str:
+def translitkir_2_lat(text: str) -> str:
     text = translit(text, 'ru', reversed=True)
     text = text.lower()
     text = text.replace(' ', '_')

@@ -18,7 +18,7 @@ def extract() -> str:
     
 @api.route('/fill-file', methods=['POST'])
 def fill_file() -> str:
-    return docx_handler.fillFile(request)
+    return docx_handler.fill_file(request)
 
 app.register_blueprint(api)
 
